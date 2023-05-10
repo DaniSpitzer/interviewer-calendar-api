@@ -1,9 +1,7 @@
 package com.interviewer.calendar.api.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.sql.Date;
 import java.sql.Time;
@@ -13,6 +11,8 @@ import java.time.temporal.Temporal;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
+@Getter
 @Builder
 @Entity
 @Table(name = "user-availability")

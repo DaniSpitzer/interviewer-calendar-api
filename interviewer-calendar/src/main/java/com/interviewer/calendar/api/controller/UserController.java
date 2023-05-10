@@ -3,14 +3,15 @@ package com.interviewer.calendar.api.controller;
 import com.interviewer.calendar.api.dto.UserAvailabilityDto;
 import com.interviewer.calendar.api.dto.UserCreateDto;
 import com.interviewer.calendar.api.dto.UserOutDto;
+import com.interviewer.calendar.api.model.UserAvailability;
 import com.interviewer.calendar.api.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalTime;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -27,10 +28,15 @@ public class UserController {
 
     @PostMapping("/register-user-availability")
     public ResponseEntity<Void> addAvailability(@RequestBody UserAvailabilityDto newUserAvailabilityDto){
-        System.out.println("aqui");
         userService.addAvailability(newUserAvailabilityDto);
-        System.out.println("chamei o serviço");
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+    @GetMapping("/interviewer-available")
+    public ResponseEntity<List<UserAvailabilityDto>> getInterviewersAvailable(@RequestBody UserAvailabilityDto userAvailabilityDto){
+        List<UserAvailabilityDto> availableSlots = userService.addInterviewersAvailable(userAvailabilityDto);
+        System.out.println(availableSlots);
+        return new ResponseEntity<>(availableSlots, HttpStatus.OK);
+    }
+
 
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.time.temporal.*;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -38,24 +39,35 @@ public class UserService {
     public void addAvailability(UserAvailabilityDto newUserAvailabilityDto) {
         Users userByEmail = userRepository.findByEmail(newUserAvailabilityDto.getEmail());
         UserAvailability userAvailability = userConverter.fromUserAvailabilityDtoToUserAvailability(newUserAvailabilityDto, userByEmail);
-        System.out.println(userByEmail.getEmail());
         Long availabilityDuration = java.time.Duration.between(newUserAvailabilityDto.getInitialTime(),newUserAvailabilityDto.getEndTime()).toHours();
         if( availabilityDuration > 1){
-            System.out.println("entro no if");
-            LocalTime initialHour = newUserAvailabilityDto.getInitialTime();
-            for(int i = 1; i < availabilityDuration; i++){
-                TemporalUnit hourUnit = ChronoUnit.HOURS;
-                LocalTime incrementalHour = newUserAvailabilityDto.getInitialTime().plus(i, hourUnit);
-                UserAvailability slot = UserAvailability.builder()
-                        .date(newUserAvailabilityDto.getDate())
-                        .initialTime(initialHour)
-                        .endTime(incrementalHour)
-                        .user(userByEmail)
-                        .build();
-                userAvailabilityRepository.save(slot);
-                initialHour = incrementalHour;
-            }
+            setAvailableSlot(newUserAvailabilityDto,availabilityDuration, userByEmail);
+        } else {
+            userAvailabilityRepository.save(userAvailability);
         }
-        userAvailabilityRepository.save(userAvailability);
+    }
+
+    public void setAvailableSlot(UserAvailabilityDto newUserAvailabilityDto,Long availabilityDuration, Users userByEmail ){
+        LocalTime initialHour = newUserAvailabilityDto.getInitialTime();
+        for(int i = 1; i <= availabilityDuration; i++){
+            TemporalUnit hourUnit = ChronoUnit.HOURS;
+            LocalTime incrementalHour = newUserAvailabilityDto.getInitialTime().plus(i, hourUnit);
+            UserAvailability slot = UserAvailability.builder()
+                    .date(newUserAvailabilityDto.getDate())
+                    .initialTime(initialHour)
+                    .endTime(incrementalHour)
+                    .user(userByEmail)
+                    .build();
+            userAvailabilityRepository.save(slot);
+            initialHour = incrementalHour;
+        }
+
+    }
+
+    public List<UserAvailabilityDto> addInterviewersAvailable(UserAvailabilityDto userAvailabilityDto) {
+        List<UserAvailability> availableSlots = userAvailabilityRepository.getSlots(userAvailabilityDto.getInitialTime(),userAvailabilityDto.getEndTime(),userAvailabilityDto.getDate());
+        List<UserAvailabilityDto> availableSlotsDto = availableSlots.stream()
+                .map(slot -> userConverter.fromUserAvailabilityToUserAvailabilityDto(slot)).toList();
+        return availableSlotsDto;
     }
 }

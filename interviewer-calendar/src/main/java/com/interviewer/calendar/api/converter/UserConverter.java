@@ -37,4 +37,13 @@ public class UserConverter {
                 .build();
     }
 
+    public UserAvailabilityDto fromUserAvailabilityToUserAvailabilityDto(UserAvailability userAvailability){
+        return UserAvailabilityDto.builder()
+                .date(userAvailability.getDate())
+                .initialTime(userAvailability.getInitialTime())
+                .endTime(userAvailability.getEndTime())
+                .email(userAvailability.getUser().getEmail())
+                .build();
+    }
+
 }
